@@ -2,7 +2,6 @@ from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-from src.database.db import engine
 
 Base = declarative_base()
 
@@ -28,4 +27,4 @@ class User(Base):
     confirmed = Column(Boolean, default=False)
     avatar = Column(String(255), nullable=True)
 
-Base.metadata.create_all(bind=engine)
+
