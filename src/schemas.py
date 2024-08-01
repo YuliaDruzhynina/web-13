@@ -9,7 +9,6 @@ class ContactSchema(BaseModel):
     email: EmailStr
     phone_number:str
     birthday: datetime.date
-    #birthdate: str
 
     class Config:
         from_attributes = True

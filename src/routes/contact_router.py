@@ -9,7 +9,7 @@ from src.services.auth import auth_service
 from src.repository import contacts as repository_contacts
 
 
-router = APIRouter(prefix='/contacts', tags=["contacts"])
+router = APIRouter()
 
 
 @router.get("/")

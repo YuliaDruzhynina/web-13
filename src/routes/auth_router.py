@@ -24,7 +24,7 @@ from src.services.send_email import send_email
 from src.repository.users import get_user_by_email, create_user
 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
 security = HTTPBearer()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
@@ -47,10 +47,7 @@ async def signup(
     background_tasks.add_task(
         send_email, new_user.email, new_user.username, request.base_url
     )
-    return {
-        "user": new_user,
-        "detail": "User successfully created. Check your email for confirmation.",
-    }
+    return new_user
 
 
 @router.post("/login")
