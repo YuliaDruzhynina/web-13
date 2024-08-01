@@ -32,7 +32,7 @@ async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchem
     message = MessageSchema(
         subject="Fastapi mail module",
         recipients=[body.email],
-        template_body={"fullname": "Billy Jones"},
+        template_body={"fullname": "bill murrey"},
         subtype=MessageType.html
     )
 
