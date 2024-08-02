@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     MAIL_PORT: int
     MAIL_SERVER: str
     TEMPLATE_FOLDER: Path = Path(__file__).parent.parent / 'templates'
-
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

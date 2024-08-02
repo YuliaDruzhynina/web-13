@@ -1,73 +1,95 @@
 from datetime import date, datetime, timedelta
 from fastapi import Depends, HTTPException, Path, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from src.database.db import get_db
 from src.entity.models import Contact, User
 from src.schemas import ContactSchema
 
-async def create_contact(body: ContactSchema, db: Session = Depends(get_db)):
-    contact = db.query(Contact).filter_by(email=body.email).first()
-    if contact:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Contact already exists!")
-    contact=Contact(fullname=body.fullname, phone_number=body.phone_number, email=body.email, birthday =body.birthday)
-    db.add(contact)
-    db.commit()
-    return contact
+
+async def create_contact(body: ContactSchema, db: AsyncSession = Depends(get_db)):
+        contact = await db.execute(select(Contact).filter(Contact.email == body.email))
+        existing_contact = contact.scalar_one_or_none()
+        if existing_contact:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Contact already exists!")
+        
+        new_contact = Contact(
+            fullname=body.fullname,
+            phone_number=body.phone_number,
+            email=body.email,
+            birthday=body.birthday
+        )
+        db.add(new_contact)
+        await db.commit()
+        return new_contact
 
 
-async def get_contacts(db: Session = Depends(get_db)):
-    contacts = db.query(Contact).all()
-    return contacts
+async def get_contacts(limit: int, offset: int, db: AsyncSession  = Depends(get_db)):
+    stmt = select(Contact).offset(offset).limit(limit)
+    contacts = await db.execute(stmt)
+    return contacts.scalars().all()
 
 
-async def get_contact_by_id(contact_id: int = Path(ge=1), db: Session = Depends(get_db)):
-    contact = db.query(Contact).filter_by(id=contact_id).first()
-    if contact is None:
+async def get_contact_by_id(contact_id: int = Path(ge=1), db: AsyncSession  = Depends(get_db)):
+    stmt = select(Contact).filter_by(id=contact_id)
+    result =  await db.execute(stmt)
+    if result is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NOT FOUND")
+    contact = result.scalar_one_or_none()
     return contact
 
 
-async def get_contact_by_fullname(contact_fullname: str, db: Session, user: User):
-    return db.query(Contact).filter(Contact.user == user).filter(Contact.fullname == contact_fullname).first()
+async def get_contact_by_fullname(contact_fullname: str, db: AsyncSession, user: User):
+    stmt = select(Contact).filter(user=user, fullname=contact_fullname)
+    result = await db.execute(stmt)
+    contact = result.scalar_one_or_none()
+    return contact
 
 
-async def get_contact_by_email(contact_email: str, db: Session, user: User):
-    return db.query(Contact).filter(Contact.user == user).filter(Contact.email == contact_email).first()
+async def get_contact_by_email(contact_email: str, db: AsyncSession, user: User):
+    stmt = select(Contact).filter(Contact.user == user, Contact.email == contact_email)
+    result = await db.execute(stmt)
+    contact = result.scalar_one_or_none()
+    return contact
 
 
-async def get_upcoming_birthdays(db: Session = Depends(get_db)):
+async def get_upcoming_birthdays(db: AsyncSession  = Depends(get_db)):
     current_date = date.today()
     future_date = current_date + timedelta(days=7)
-    contacts = db.query(Contact).filter(current_date >= Contact.birthday, Contact.birthday <= future_date).all()
-    print(contacts)
+    stmt = db.select(Contact).filter(current_date >= Contact.birthday, Contact.birthday <= future_date)
+    result = await db.execute(stmt)
+    contacts = result.scalars().all()
     return contacts
 
 
-async def get_upcoming_birthdays_from_new_date(new_date: str = Path(..., description="Current date in format YYYY-MM-DD"),db: Session = Depends(get_db)):
+async def get_upcoming_birthdays_from_new_date(new_date: str = Path(..., description="Current date in format YYYY-MM-DD"),db: AsyncSession  = Depends(get_db)):
     new_date_obj = datetime.strptime(new_date,"%Y-%m-%d").date()
     future_date = new_date_obj + timedelta(days=7)
-    contacts = db.query(Contact).filter(Contact.birthday >= new_date_obj, Contact.birthday <= future_date).all()
-    print(contacts)
-    return contacts
+    stmt = select(Contact).filter(Contact.birthday >= new_date_obj, Contact.birthday <= future_date)
+    contacts = await db.execute(stmt)
+    return contacts.scalars().all()
 
 
-async def update_contact(body: ContactSchema, contact_id: int = Path(ge=1),db: Session = Depends(get_db)):
-    contact = db.query(Contact).filter_by(id = contact_id).first()
+async def update_contact(body: ContactSchema, contact_id: int = Path(ge=1),db: AsyncSession  = Depends(get_db)):
+    stmt = select(Contact).filter(id = contact_id)
+    result = await db.execute(stmt)
+    contact = result.scalar_one_or_none()
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found")
     contact.fullname = body.fullname
     contact.email = body.email
     contact.phone_number = body.phone_number
     contact.birthday = body.birthday
-    db.commit()
+    await db.commit()
+    await db.refresh(contact)
     return contact
 
 
-async def delete_contact(contact_id: int = Path(ge=1), db: Session = Depends(get_db)):
-    contact = db.query(Contact).filter_by(id = contact_id).first()
+async def delete_contact(contact_id: int = Path(ge=1), db: AsyncSession = Depends(get_db)):
+    contact = await db.execute(select(Contact).filter_by(id=contact_id)).scalar_one_or_none()
     if contact is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Contact does not exist or you do not have permission to delete it.")
-    db.delete(contact)
-    db.commit()
+    await db.delete(contact)
+    await db.commit()
     return contact

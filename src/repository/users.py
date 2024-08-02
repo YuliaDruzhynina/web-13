@@ -33,4 +33,4 @@ async def create_user(user_data: UserModel, db: AsyncSession):
 
 async def update_token(user: User, token: str | None, db: Session) -> None:
     user.refresh_token = token
-    db.commit()
+    await db.commit()

@@ -14,7 +14,8 @@ from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm,
 )
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.database.db import get_db
 from src.entity.models import User
 from src.schemas import UserModel, TokenModel
@@ -36,7 +37,7 @@ async def signup(
     body: UserModel,
     background_tasks: BackgroundTasks,
     request: Request,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     exist_user = await get_user_by_email(body.email, db)
     if exist_user:
@@ -52,7 +53,7 @@ async def signup(
 
 
 @router.post("/login", response_model=TokenModel)
-async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
@@ -70,7 +71,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 @router.get("/refresh_token")
 async def refresh_token(
     credentials: HTTPAuthorizationCredentials = Security(security),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     token = credentials.credentials
     email = await auth_service.get_email_from_refresh_token(token)

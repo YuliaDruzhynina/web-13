@@ -1,7 +1,8 @@
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, status, HTTPException
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from sqlalchemy.orm import Session
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.conf.config import settings
 from src.database.db import get_db
@@ -43,7 +44,7 @@ async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchem
     return {"message": "email has been sent"}
 
 @router.get('/confirmed_email/{token}')
-async def confirmed_email(token: str, db: Session = Depends(get_db)):
+async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
     email = await auth_service.get_email_from_token(token)
     user = await get_user_by_email(email, db)
     if user is None:
@@ -56,7 +57,7 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
 
 @router.post('/request_email')
 async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, request: Request,
-                        db: Session = Depends(get_db)):
+                        db: AsyncSession = Depends(get_db)):
     user = await get_user_by_email(body.email, db)
 
     if user.confirmed:
