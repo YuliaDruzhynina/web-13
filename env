@@ -10,7 +10,7 @@ ALGORITHM=HS256
 
 MAIL_USERNAME=poshta@meta.ua
 MAIL_PASSWORD=mypassword
-MAIL_FROM=username@example.com
+MAIL_FROM=poshta@meta.ua
 MAIL_PORT=465
 MAIL_SERVER=smtp.meta.ua
 
