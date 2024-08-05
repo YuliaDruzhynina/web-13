@@ -28,5 +28,4 @@ def root():
 # if __name__ == '__main__':
 #     result=main()
 #     import uvicorn
-#     uvicorn.run(app, host=config.HOST, port=config.PORT)
-    
+#     uvicorn.run(app, host=config.HOST, port=config

@@ -15,15 +15,17 @@ from fastapi.security import (
     OAuth2PasswordRequestForm,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+import redis.asyncio as redis
+ 
 
-from src.database.db import get_db
+from src.database.db import get_db, get_redis_client
 from src.entity.models import User
 from src.schemas import UserModel, TokenModel
 from src.services.auth import auth_service
     
 from src.services.send_email import send_email
 from src.repository.users import get_user_by_email, create_user, update_token
-
+from src.conf.config import settings
 
 
 router = APIRouter()
@@ -89,3 +91,12 @@ async def refresh_token(
 @router.get("/secret")
 async def read_item(current_user: User = Depends(auth_service.get_current_user)):
     return {"message": 'secret router', "owner": current_user.email}
+
+@router.post("/test_cache/set")
+async def set_cache(key:str, value:str, redis_client: redis.Redis = Depends(get_redis_client)):
+    await redis_client.set(key, value)
+
+@router.get("/test_cache/get/{key}")
+async def get_cache(key:str, redis_client: redis.Redis = Depends(get_redis_client)):
+    value = await redis_client.get(key)  
+    return {key: value}   

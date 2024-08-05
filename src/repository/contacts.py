@@ -8,21 +8,12 @@ from src.entity.models import Contact, User
 from src.schemas import ContactSchema
 
 
-async def create_contact(body: ContactSchema, db: AsyncSession = Depends(get_db)):
-        contact = await db.execute(select(Contact).filter(Contact.email == body.email))
-        existing_contact = contact.scalar_one_or_none()
-        if existing_contact:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Contact already exists!")
-        
-        new_contact = Contact(
-            fullname=body.fullname,
-            phone_number=body.phone_number,
-            email=body.email,
-            birthday=body.birthday
-        )
-        db.add(new_contact)
-        await db.commit()
-        return new_contact
+async def create_contact(body: ContactSchema, db: AsyncSession):
+    contact = Contact(**body.model_dump(exclude_unset=True))
+    db.add(contact)
+    await db.commit()
+    await db.refresh(contact)
+    return contact
 
 
 async def get_contacts(limit: int, offset: int, db: AsyncSession  = Depends(get_db)):

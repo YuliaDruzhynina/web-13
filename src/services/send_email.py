@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from fastapi_mail.errors import ConnectionErrors
@@ -19,7 +18,7 @@ conf = ConnectionConfig(
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
     TEMPLATE_FOLDER=settings.TEMPLATE_FOLDER,
-)    
+) 
 
 async def send_email(email: EmailStr, username: str, host: str):
     try:

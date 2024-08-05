@@ -1,7 +1,7 @@
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request, status, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, status, HTTPException, Response
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.conf.config import settings
@@ -40,7 +40,6 @@ async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchem
     fm = FastMail(conf)
 
     background_tasks.add_task(fm.send_message, message, template_name="email_template.html")
-
     return {"message": "email has been sent"}
 
 @router.get('/confirmed_email/{token}')
@@ -66,6 +65,10 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
         background_tasks.add_task(send_email, user.email, user.username, str(request.base_url))
     return {"message": "Check your email for confirmation."}
 
-
-
+# @router.get('/{username}')
+# async def request_email(username: str, response: Response, db: AsyncSession = Depends(get_db)):
+#     print('--------------------------------')
+#     print(f'{username} зберігаємо що він відкрив email в БД')
+#     print('--------------------------------')
+#     return FileResponse("src/static/open_check.png", media_type="image/png", content_disposition_type="inline")
 
