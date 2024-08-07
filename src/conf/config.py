@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
 
-    MAIL_USERNAME: str = 'poshta@meta.ua'
+    MAIL_USERNAME: str = 'poshta@example.ua'
     MAIL_PASSWORD: str = 'mypassword'
-    MAIL_FROM: str = 'poshta@meta.ua'
+    MAIL_FROM: str = 'poshta@example.ua'
     MAIL_PORT: int = 465
     MAIL_SERVER: str = 'smtp.meta.ua' 
     TEMPLATE_FOLDER: Path = Path(__file__).parent.parent / 'templates'
