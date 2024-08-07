@@ -17,7 +17,6 @@ from fastapi.security import (
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as redis
  
-
 from src.database.db import get_db, get_redis_client
 from src.entity.models import User
 from src.schemas import UserModel, TokenModel
@@ -25,7 +24,6 @@ from src.services.auth import auth_service
     
 from src.services.send_email import send_email
 from src.repository.users import get_user_by_email, create_user, update_token
-from src.conf.config import settings
 
 
 router = APIRouter()

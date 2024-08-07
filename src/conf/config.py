@@ -13,11 +13,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
 
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_PORT: int
-    MAIL_SERVER: str
+    MAIL_USERNAME: str = 'hw2024@meta.ua'
+    MAIL_PASSWORD: str = 'Lehfrb13579'
+    MAIL_FROM: str = 'hw2024@meta.ua'
+    MAIL_PORT: int = 465
+    MAIL_SERVER: str = 'smtp.meta.ua' 
     TEMPLATE_FOLDER: Path = Path(__file__).parent.parent / 'templates'
 
     REDIS_URL: str

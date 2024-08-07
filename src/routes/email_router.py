@@ -30,6 +30,7 @@ router = APIRouter()
 
 @router.post("/send-email")
 async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchema):
+    #token_verification = auth_service.create_email_token({"sub": email})
     message = MessageSchema(
         subject="Fastapi mail module",
         recipients=[body.email],
