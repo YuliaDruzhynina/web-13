@@ -30,12 +30,17 @@ async def get_contact_by_id(contact_id: int = Path(ge=1), db: AsyncSession  = De
     contact = result.scalar_one_or_none()
     return contact
 
-
 async def get_contact_by_fullname(contact_fullname: str, db: AsyncSession, user: User):
-    stmt = select(Contact).filter(user=user, fullname=contact_fullname)
+    stmt = select(Contact).filter(Contact.user_id==user.id, Contact.fullname==contact_fullname)
     result = await db.execute(stmt)
     contact = result.scalar_one_or_none()
     return contact
+
+# async def get_contact_by_fullname(contact_fullname: str, db: AsyncSession, user: User):
+#     stmt = select(Contact).filter(user=user, fullname=contact_fullname)
+#     result = await db.execute(stmt)
+#     contact = result.scalar_one_or_none()
+#     return contact
 
 
 async def get_contact_by_email(contact_email: str, db: AsyncSession, user: User):
