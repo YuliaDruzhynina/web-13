@@ -1,10 +1,12 @@
-
+   
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from fastapi_mail.errors import ConnectionErrors
 from pydantic import EmailStr
 
 from src.conf.config import settings
 from src.services.auth import auth_service
+
+
 
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,
@@ -19,6 +21,7 @@ conf = ConnectionConfig(
     VALIDATE_CERTS=True,
     TEMPLATE_FOLDER=settings.TEMPLATE_FOLDER,
 ) 
+
 
 async def send_email(email: EmailStr, username: str, host: str):
     try:

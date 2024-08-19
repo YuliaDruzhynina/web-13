@@ -1,8 +1,18 @@
-from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
-#from sqlalchemy.ext.declarative import declarative_base
+import enum
+from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String, Enum
+
+# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, declarative_base
 
+
 Base = declarative_base()
+
+
+class Role(enum.Enum):
+    admin = "admin"
+    moderator = "moderator"
+    user = "user"
+
 
 class Contact(Base):
     __tablename__ = "contacts"
@@ -25,5 +35,4 @@ class User(Base):
     contacts = relationship("Contact", back_populates="user")
     confirmed = Column(Boolean, default=False)
     avatar = Column(String(255), nullable=True)
-
-
+    role = Column(Enum(Role), default=Role.user, nullable=True)

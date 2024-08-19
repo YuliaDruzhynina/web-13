@@ -1,6 +1,10 @@
 import contextlib
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 import redis.asyncio as redis
 
 from src.conf.config import settings
@@ -62,11 +66,10 @@ async def get_db():
     async with sessionmanager.session() as session:
         yield session
 
-       
+
 async def get_redis_client():
     redis_client = redis.Redis.from_url(settings.REDIS_URL)
     try:
         yield redis_client
     finally:
-        await redis_client.close() 
-
+        await redis_client.close()
