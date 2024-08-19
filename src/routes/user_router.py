@@ -38,7 +38,7 @@ async def update_avatar_user(
     print(f"Generated public_id: {public_id}")
     resource = cloudinary.uploader.upload(file.file, public_id=public_id, overwrite=True)
     print(resource)
-    src_url = cloudinary.CloudinaryImage(f'NotesApp/{current_user.email}')\
+    src_url = cloudinary.CloudinaryImage(f'ImageStorage/{current_user.email}')\
                         .build_url(width=250, height=250, crop='fill', version=resource.get('version'))
     user = await repository_users.update_avatar_url(current_user.email, src_url, db)
     return user

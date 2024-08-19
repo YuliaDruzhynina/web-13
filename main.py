@@ -1,4 +1,5 @@
 # uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+#pip install -r requirements.txt
 import re
 from ipaddress import ip_address
 from typing import Callable
@@ -16,6 +17,8 @@ from src.routes.contact_router import router as contact_router
 from src.routes.email_router import router as email_router
 from src.routes.auth_router import router as auth_router
 from src.routes.user_router import router as user_router
+
+load_dotenv()# Загружаем переменные окружения до инициализации FastAP
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,7 +40,6 @@ app.include_router(user_router, prefix="/user", tags=["user"])
 
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-load_dotenv()
 
 
 banned_ips = [
