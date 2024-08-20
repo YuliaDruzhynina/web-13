@@ -45,7 +45,6 @@ async def get_contact_by_id(
     contact = result.scalar_one_or_none()
     return contact
 
-
 # async def get_contact_by_id(db: AsyncSession, user: User, contact_id: int = Path(...,ge=1)):
 #     stmt = select(Contact).filter(Contact.user == user, Contact.id == contact_id)
 #     result =  await db.execute(stmt)
@@ -125,4 +124,4 @@ async def delete_contact(
     contact = result.scalar_one_or_none()
     await db.delete(contact)
     await db.commit()
-    return {"detail": "Contact deleted successfully"}
+    return contact
