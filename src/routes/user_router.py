@@ -29,16 +29,16 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
     response_model=UserResponse,
     dependencies=[Depends(RateLimiter(times=1, seconds=20))],
 )
-async def update_avatar_user(
+async def update_avatar_url(
     file: UploadFile = File(),
     current_user: User = Depends(auth_service.get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    public_id = f"ImageStorage/{current_user.email}"
+    public_id = f"cloud_store/{current_user.email}"
     print(f"Generated public_id: {public_id}")
     resource = cloudinary.uploader.upload(file.file, public_id=public_id, overwrite=True)
     print(resource)
-    src_url = cloudinary.CloudinaryImage(f'ImageStorage/{current_user.email}')\
+    res_url = cloudinary.CloudinaryImage(f'cloud_store/{current_user.email}')\
                         .build_url(width=250, height=250, crop='fill', version=resource.get('version'))
-    user = await repository_users.update_avatar_url(current_user.email, src_url, db)
+    user = await repository_users.update_avatar_url(current_user.email, res_url, db)
     return user

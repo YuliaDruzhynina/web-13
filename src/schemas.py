@@ -1,8 +1,8 @@
 import datetime
-
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 from src.entity.models import Role
-from typing import Optional
+
 
 
 class ContactSchema(BaseModel):
@@ -12,7 +12,8 @@ class ContactSchema(BaseModel):
     birthday: datetime.date
 
     class Config:
-        from_attributes = True
+        orm_mode = True
+        #from_attributes = True
 
 
 class UserModel(BaseModel):
@@ -29,7 +30,7 @@ class UserResponse(BaseModel):
     id: int = 1
     username: str
     email: EmailStr
-    avatar: str
+    avatar: Optional[str] 
     detail: str = "User successfully created"
     role: Optional[Role]
 
@@ -39,11 +40,11 @@ class UserResponse(BaseModel):
 
 class ContactResponse(ContactSchema):
     id: int
-    user: UserResponse | None
+    user: Optional[UserResponse]
 
     class Config:
         from_attributes = True
-
+        orm_mode = True
 
 class TokenModel(BaseModel):
     access_token: str

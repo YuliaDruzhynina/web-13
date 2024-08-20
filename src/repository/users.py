@@ -43,8 +43,9 @@ async def confirmed_email(email: str, db: AsyncSession) -> None:
     await db.commit()
 
 
-async def update_avatar_url(email: str, url: str, db: AsyncSession) -> User:
+async def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> User:
     user = await get_user_by_email(email, db)
     user.avatar = url
     await db.commit()
+    await db.refresh(user)
     return user

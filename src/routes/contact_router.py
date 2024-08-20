@@ -31,10 +31,10 @@ async def create_contact(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    return await repository_contacts.create_contact(body, db, user.id)
+    return await repository_contacts.create_contact(body, db, user)
 
 
-@router.get("/contacts", response_model=list[ContactResponse])
+@router.get("/contacts/open", response_model=list[ContactResponse])
 async def get_contacts(
     limit: int = Query(default=10),
     offset: int = Query(default=0),
