@@ -12,3 +12,7 @@ docker-compose up -d
 alembic revision --autogenerate -m "Initial migration"
 alembic upgrade head
 alembic.ini:sqlalchemy.url = postgresql+psycopg2://postgres:567234@localhost:5432/restapp_hw13
+
+rm -rf migrations
+alembic init migrations
+alembic init -t async alembic

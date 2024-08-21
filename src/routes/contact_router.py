@@ -23,7 +23,6 @@ def main_root():
 
 @router.post(
     "/contacts",
-    response_model=ContactResponse,
     dependencies=[Depends(RateLimiter(times=2, seconds=5))],
 )
 async def create_contact(
@@ -119,7 +118,7 @@ async def get_upcoming_birthdays_from_new_date(
     )
 
 
-@router.put("/contacts/update/{contact_id}", response_model=ContactResponse)
+@router.put("/contacts/update/{contact_id}")
 async def update_contact(
     body: ContactSchema,
     contact_id: int = Path(..., ge=1),

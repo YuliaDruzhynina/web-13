@@ -11,7 +11,7 @@ from src.services.auth import auth_service
 
 
 async def create_contact(body: ContactSchema, db: AsyncSession, user: User):
-    contact = await db.execute(select(Contact).filter(Contact.email == body.email, Contact.user_id == user.id))
+    contact = await db.execute(select(Contact).filter(Contact.email == body.email, Contact.user == user))
     existing_contact = contact.scalar_one_or_none()
     if existing_contact:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Contact already exists!")  
@@ -90,7 +90,7 @@ async def get_upcoming_birthdays_from_new_date(
 async def update_contact(
     body: ContactSchema, contact_id: int = Path(ge=1), db: AsyncSession = Depends(get_db), user: User = Depends(auth_service.get_current_user)
 ):
-    stmt = select(Contact).filter(Contact.user_id == user.id, Contact.id == contact_id)
+    stmt = select(Contact).filter(Contact.user == user, Contact.id == contact_id)
     result = await db.execute(stmt)
     contact = result.scalar_one_or_none()
     if contact is None:
