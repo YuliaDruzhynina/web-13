@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Path, Query, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_limiter.depends import RateLimiter
 
-# from typing import List
+from typing import List
 # import json
 from src.database.db import get_db
 from src.entity.models import User, Role
@@ -22,7 +22,7 @@ def main_root():
 
 
 @router.post(
-    "/contacts/",
+    "/contacts",
     response_model=ContactResponse,
     dependencies=[Depends(RateLimiter(times=2, seconds=5))],
 )
@@ -31,16 +31,7 @@ async def create_contact(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    return await repository_contacts.create_contact(body, db, user)
-
-
-@router.get("/contacts/open", response_model=list[ContactResponse])
-async def get_contacts(
-    limit: int = Query(default=10),
-    offset: int = Query(default=0),
-    db: AsyncSession = Depends(get_db),
-):
-    return await repository_contacts.get_contacts(limit, offset, db)
+    return await repository_contacts.create_contact(body, db, user)#user_id
 
 
 @router.get(
@@ -49,7 +40,7 @@ async def get_contacts(
     dependencies=[
         Depends(access_to_route_all),
         Depends(RateLimiter(times=1, seconds=20)),
-    ],
+    ]
 )
 async def get_all_contacts(
     limit: int = Query(default=10),
@@ -66,8 +57,11 @@ async def get_contact_by_id(
     offset: int = Query(default=0),
     contact_id: int = Path(..., ge=1),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(auth_service.get_current_user),
 ):
-    contact = await repository_contacts.get_contact_by_id(limit, offset, contact_id, db)
+    contact = await repository_contacts.get_contact_by_id(
+        limit, offset, contact_id, db
+    )
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NOT FOUND")
     return contact
@@ -105,30 +99,34 @@ async def get_contact_by_email(
 @router.get(
     "/contacts/by_birthday/{get_birthday}", response_model=list[ContactResponse]
 )
-async def get_upcoming_birthdays(db: AsyncSession = Depends(get_db)):
-    return await repository_contacts.get_upcoming_birthdays(db)
+async def get_upcoming_birthdays(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(auth_service.get_current_user),
+):
+    return await repository_contacts.get_upcoming_birthdays(db, user)
 
 
 @router.get("/contacts/get_new_day/{new_date}", response_model=list[ContactResponse])
 async def get_upcoming_birthdays_from_new_date(
+    new_date: str = Path(..., description="Current date in format YYYY-MM-DD"),
     limit: int = Query(default=10),
     offset: int = Query(default=0),
-    new_date: str = Path(..., description="Current date in format YYYY-MM-DD"),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(auth_service.get_current_user),
 ):
     return await repository_contacts.get_upcoming_birthdays_from_new_date(
-        limit, offset, new_date, db
+        new_date, limit, offset, db, user
     )
 
 
 @router.put("/contacts/update/{contact_id}", response_model=ContactResponse)
 async def update_contact(
     body: ContactSchema,
+    contact_id: int = Path(..., ge=1),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(auth_service.get_current_user),
-    contact_id: int = Path(ge=1),
+    user: User = Depends(auth_service.get_current_user)
 ):
-    contact = await repository_contacts.update_contact(body, db, user, contact_id)
+    contact = await repository_contacts.update_contact(body, contact_id, db, user)
     if not contact:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found"
@@ -138,9 +136,12 @@ async def update_contact(
 
 @router.delete("/contacts/delete/{contact_id}", response_model=dict)
 async def delete_contact(
-    contact_id: int = Path(ge=1), db: AsyncSession = Depends(get_db)
+    contact_id: int = Path(ge=1),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(auth_service.get_current_user),
 ):
-    return await repository_contacts.delete_contact(contact_id, db)
+    result = await repository_contacts.delete_contact(contact_id, db)
+    return result
 
 
 # @router.get("/contacts", response_model=list[ContactResponse])

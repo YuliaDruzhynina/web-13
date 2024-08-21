@@ -39,6 +39,6 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-print("Cloudinary Name:", settings.CLOUDINARY_NAME)
-print("Cloudinary API Key:", settings.CLOUDINARY_API_KEY)
-print("Cloudinary API Secret:", settings.CLOUDINARY_API_SECRET)
+# print("Cloudinary Name:", settings.CLOUDINARY_NAME)
+# print("Cloudinary API Key:", settings.CLOUDINARY_API_KEY)
+# print("Cloudinary API Secret:", settings.CLOUDINARY_API_SECRET)

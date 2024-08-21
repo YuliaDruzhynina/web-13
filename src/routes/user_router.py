@@ -35,9 +35,9 @@ async def update_avatar_url(
     db: AsyncSession = Depends(get_db),
 ):
     public_id = f"cloud_store/{current_user.email}"
-    print(f"Generated public_id: {public_id}")
+    #print(f"Generated public_id: {public_id}")
     resource = cloudinary.uploader.upload(file.file, public_id=public_id, overwrite=True)
-    print(resource)
+    #print(resource)
     res_url = cloudinary.CloudinaryImage(f'cloud_store/{current_user.email}')\
                         .build_url(width=250, height=250, crop='fill', version=resource.get('version'))
     user = await repository_users.update_avatar_url(current_user.email, res_url, db)

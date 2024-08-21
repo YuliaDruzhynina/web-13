@@ -68,10 +68,10 @@ async def user_agent_ban_middleware(request: Request, call_next: Callable):
     ip = ip_address(request.client.host)
     if ip in banned_ips:
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"})
-    print(request.headers.get("Authorization")) # Вывод: Bearer your_access_token_here
+    #print(request.headers.get("Authorization")) # Вывод: Bearer your_access_token_here
 
     user_agent = request.headers.get("user-agent")
-    print(user_agent)
+    #print(user_agent)
     for ban_pattern in user_agent_ban_list:
         if re.search(ban_pattern, user_agent):
             return JSONResponse(
